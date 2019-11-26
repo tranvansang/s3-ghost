@@ -21,6 +21,10 @@ rm -rf node_modules/s3-ghost package.json yarn.lock
             "secretAccessKey": "<AWS Secret key>",
             "bucketName": "<bucket name>",
             "region": "<region>",
-            "assetsBaseUrl": "<CDN url or s3 url>"
+            "assetsBaseUrl": "<CDN url or s3 url>",
+            "ghostDirectory": "../../../.."
         }
 ```
+
+Note: `ghostDirectory` is the directory where ghost is installed.
+It must be an absolute path or relative path to the location where this plugin is installed
