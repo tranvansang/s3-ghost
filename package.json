@@ -7,11 +7,10 @@
     "author": "Tran Sang<info@transang.me>",
     "license": "MIT",
     "scripts": {
-        "build": "yarn tsc -d index.ts",
-        "clean": "rm index.d.ts index.js"
+        "build": "yarn tsc --target ES2015 --module commonjs --esModuleInterop true --forceConsistentCasingInFileNames true index.ts",
+        "clean": "rm index.js"
     },
     "dependencies": {
-        "@types/aws-sdk": "^2.7.0",
         "@types/ghost-storage-base": "^0.0.1",
         "@types/node": "^12.12.14",
         "aws-sdk": "^2.579.0",

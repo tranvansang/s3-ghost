@@ -1,8 +1,7 @@
-import * as S3 from 'aws-sdk/clients/s3'
-import {Config as AWSConfig} from 'aws-sdk/lib/config'
-import * as path from 'path'
-import * as fs from 'fs'
-import * as StorageBase from 'ghost-storage-base'
+import {S3, Config as AWSConfig} from 'aws-sdk'
+import path from 'path'
+import fs from 'fs'
+import StorageBase from 'ghost-storage-base'
 import {Handler} from 'express'
 import {promisify} from 'util'
 
