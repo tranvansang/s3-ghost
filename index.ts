@@ -1,8 +1,8 @@
-import AWS from 'aws-sdk'
-import path from 'path'
-import ms from 'ms'
-import fs from 'fs'
-import StorageBase from 'ghost-storage-base'
+import * as S3 from 'aws-sdk/clients/s3'
+import {Config as AWSConfig} from 'aws-sdk/lib/config'
+import * as path from 'path'
+import * as fs from 'fs'
+import * as StorageBase from 'ghost-storage-base'
 import {Handler} from 'express'
 import {promisify} from 'util'
 
@@ -17,7 +17,7 @@ interface IS3GhostConfig {
 const serverPath = '../../../../core/server'
 
 module.exports = class S3Ghost extends StorageBase {
-	private readonly s3Instance: AWS.S3
+	private readonly s3Instance: S3
 	private readonly options: IS3GhostConfig
 	private readonly storagePath: string
 
@@ -25,13 +25,13 @@ module.exports = class S3Ghost extends StorageBase {
 		super()
 		this.storagePath = require(`${serverPath}/config`).getContentPath('images')
 		this.options = config
-		const awsConfig = new AWS.Config({
+		const awsConfig = new AWSConfig({
 			accessKeyId: config.accessKeyId,
 			secretAccessKey: config.secretAccessKey,
 			region: config.region
 		})
 		awsConfig.setPromisesDependency(Promise)
-		this.s3Instance = new AWS.S3({
+		this.s3Instance = new S3({
 			apiVersion: '2006-03-01',
 			params: {Bucket: config.bucketName},
 			accessKeyId: config.accessKeyId,
