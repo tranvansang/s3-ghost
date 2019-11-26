@@ -1,7 +1,4 @@
 node_modules
 yarn-error.log
-index.js
 index.ts
 tsconfig.json
-webpack.config.ts
-yarn.lock

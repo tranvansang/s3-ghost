@@ -7,8 +7,8 @@
     "author": "Tran Sang<info@transang.me>",
     "license": "MIT",
     "scripts": {
-        "build": "yarn tsc -d index.ts && yarn webpack --mode=production",
-        "clean": "rm index.d.ts index.js s3-ghost.js s3-ghost.js.map"
+        "build": "yarn tsc -d index.ts",
+        "clean": "rm index.d.ts index.js"
     },
     "dependencies": {
         "@types/aws-sdk": "^2.7.0",
@@ -22,8 +22,6 @@
     },
     "devDependencies": {
         "tsc": "^1.20150623.0",
-        "typescript": "^3.7.2",
-        "webpack": "^4.41.2",
-        "webpack-cli": "^3.3.10"
+        "typescript": "^3.7.2"
     }
 }
