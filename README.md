@@ -2,12 +2,16 @@
 Ghost AWS S3 Storage Adapter
 
 # How to
-- `mkdir content/adapters/storage/s3-ghost`. And **make sure that this directory is empty**.
-- `cd content/adapters/storage/s3-ghost` to this directory.
-- Run `yarn init`, continuously press Enter to accept default config.
-- `yarn add s3-ghost`
-- `cp node_modules/s3-ghost/index.js .`
-- `rm -rf node_modules/s3-ghost package.json yarn.lock`.
+From your parent directory of the `content` directory (ghost root by default). Run following script
+```bash
+rm -rf content/adapters/storage/s3-ghost
+mkdir content/adapters/storage/s3-ghost
+cd content/adapters/storage/s3-ghost
+yarn init -y
+yarn add s3-ghost
+cp node_modules/s3-ghost/index.js .
+rm -rf node_modules/s3-ghost package.json yarn.lock
+```
 - In `config.production.json` add configuration as follows. All keys are required
 ```
     "storage": {
