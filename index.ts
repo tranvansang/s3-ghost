@@ -98,11 +98,8 @@ module.exports = class S3Ghost extends StorageBase {
 	}
 
 	async read(options?: StorageBase.ReadOptions): Promise<Buffer> {
-		const targetPath = path.join(
-				this.storagePath,
-				// remove trailing slashes
-				(options && options.path || '').replace(/\/$|\\$/, '')
-		)
+		// remove trailing slashes
+		const targetPath = (options && options.path || '').replace(/\/$|\\$/, '').replace(/^\//, '')
 		const response = await this.s3Instance.getObject({
 			Key: targetPath,
 			Bucket: this.options.bucketName
