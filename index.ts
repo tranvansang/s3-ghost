@@ -21,7 +21,7 @@ module.exports = class S3Ghost extends StorageBase {
 
 	constructor(config: IS3GhostConfig) {
 		super()
-		this.storagePath = require(`${config.ghostDirectory}/core/server/config`).getContentPath('images')
+		this.storagePath = require(`${config.ghostDirectory}/core/shared/config`).getContentPath('images')
 		this.options = config
 		const awsConfig = new AWSConfig({
 			accessKeyId: config.accessKeyId,

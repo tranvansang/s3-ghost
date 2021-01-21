@@ -1,10 +1,10 @@
 {
     "name": "s3-ghost",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "description": "Ghost AWS s3 storage adapter",
     "main": "index.js",
     "repository": "https://github.com/tranvansang/s3-ghost",
-    "author": "Tran Sang<info@transang.me>",
+    "author": "Tran Sang<tr@nsang.me>",
     "license": "MIT",
     "scripts": {
         "build": "yarn tsc --target ES2015 --module commonjs --esModuleInterop true --forceConsistentCasingInFileNames true index.ts",
@@ -12,15 +12,14 @@
     },
     "dependencies": {
         "@types/ghost-storage-base": "^0.0.1",
-        "@types/node": "^12.12.14",
-        "aws-sdk": "^2.579.0",
+        "@types/node": "^14.14.22",
+        "aws-sdk": "^2.830.0",
         "fs": "^0.0.1-security",
-        "ghost-storage-base": "^0.0.3",
+        "ghost-storage-base": "^0.0.5",
         "path": "^0.12.7",
-        "util": "^0.12.1"
+        "util": "^0.12.3"
     },
     "devDependencies": {
-        "tsc": "^1.20150623.0",
-        "typescript": "^3.7.2"
+        "typescript": "^4.1.3"
     }
 }
