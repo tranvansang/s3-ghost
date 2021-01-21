@@ -1,11 +1,14 @@
 {
     "name": "s3-ghost",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "description": "Ghost AWS s3 storage adapter",
     "main": "index.js",
     "repository": "https://github.com/tranvansang/s3-ghost",
     "author": "Tran Sang<tr@nsang.me>",
     "license": "MIT",
+    "files": [
+        "index.js"
+    ],
     "scripts": {
         "build": "yarn tsc --target ES2015 --module commonjs --esModuleInterop true --forceConsistentCasingInFileNames true index.ts",
         "clean": "rm index.js"
