@@ -66,7 +66,7 @@ module.exports = class S3Ghost extends StorageBase {
 			Body: await promisify(fs.readFile.bind(fs))(image.path),
 			Bucket: this.options.bucketName
 		}).promise()
-		const urlUtils = require(`${this.options.ghostDirectory}/core/server/lib/url-utils`)
+		const urlUtils = require(`${this.options.ghostDirectory}/core/shared/url-utils`)
 		return urlUtils.urlJoin(
 				'/',
 				urlUtils.getSubdir(),
