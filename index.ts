@@ -4,6 +4,7 @@ import fs from 'fs'
 import StorageBase from 'ghost-storage-base'
 import {Handler} from 'express'
 import {promisify} from 'util'
+import ms from 'ms'
 
 interface IS3GhostConfig {
 	accessKeyId: string
@@ -64,7 +65,8 @@ module.exports = class S3Ghost extends StorageBase {
 			ContentType: image.type,
 			Key: this.getAWSKey(targetFileName),
 			Body: await promisify(fs.readFile.bind(fs))(image.path),
-			Bucket: this.options.bucketName
+			Bucket: this.options.bucketName,
+			CacheControl: `public, max-age=${Math.round(ms('2 weeks') / ms('1 second'))}`
 		}).promise()
 		const urlUtils = require(`${this.options.ghostDirectory}/core/shared/url-utils`)
 		return urlUtils.urlJoin(

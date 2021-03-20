@@ -14,15 +14,17 @@
         "clean": "rm index.js"
     },
     "dependencies": {
-        "@types/ghost-storage-base": "^0.0.1",
-        "@types/node": "^14.14.22",
         "aws-sdk": "^2.830.0",
         "fs": "^0.0.1-security",
         "ghost-storage-base": "^0.0.5",
+        "ms": "^2.1.3",
         "path": "^0.12.7",
         "util": "^0.12.3"
     },
     "devDependencies": {
+        "@types/ghost-storage-base": "^0.0.1",
+        "@types/ms": "^0.7.31",
+        "@types/node": "^14.14.22",
         "typescript": "^4.1.3"
     }
 }
