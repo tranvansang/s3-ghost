@@ -90,7 +90,7 @@ module.exports = class S3Ghost extends StorageBase {
 		return (req, res) => {
 			res
 					.status(301)
-					.redirect(`${this.options.assetsBaseUrl || `https://${this.options.bucketName}.s3.${this.options.region}.amazonaws.com`}${this.options.baseDir || ''}${req.url.replace(/\/$/, '').replace(/\/$/, '')}`)
+					.redirect(`${this.options.assetsBaseUrl || `https://${this.options.bucketName}.s3.${this.options.region}.amazonaws.com`}/${this.options.baseDir || ''}${req.url.replace(/\/$/, '').replace(/^\//, '')}`)
 		}
 	}
 
