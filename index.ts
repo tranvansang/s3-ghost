@@ -28,7 +28,8 @@ module.exports = class S3Ghost extends StorageBase {
 		super()
 		// https://github.com/TryGhost/Ghost/blob/592d02fd23a3a440f0be06d8f8cdce18a4ec3742/core/shared/config/helpers.js#L69
 		// images or files or media or public
-		this.storagePath = require(`${config.ghostDirectory}/core/shared/config`).getContentPath('files')
+		// in old version: only support images
+		this.storagePath = require(`${config.ghostDirectory}/core/shared/config`).getContentPath('images')
 		this.options = config
 
 		this.s3Instance = new S3Client({
