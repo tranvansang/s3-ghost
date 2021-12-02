@@ -1,98 +1,112 @@
-import {S3, Config as AWSConfig} from 'aws-sdk'
 import path from 'path'
 import fs from 'fs'
 import StorageBase from 'ghost-storage-base'
-import {Handler} from 'express'
+import type {Handler} from 'express'
 import {promisify} from 'util'
 import ms from 'ms'
+import {DeleteObjectCommand, GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client} from '@aws-sdk/client-s3'
+import {encodeS3Key, sanitizeS3Key} from 's3-key'
 
 interface IS3GhostConfig {
+	ghostDirectory: string
+
 	accessKeyId: string
 	secretAccessKey: string
 	bucketName: string
 	region: string
-	assetsBaseUrl: string
-	ghostDirectory: string
+	endpoint: string // https://sgp1.digitaloceanspaces.com
+	baseDir?: string // example: foo/bar/
+	assetsBaseUrl: string // example: https://cdn.example.com without baseDir
 }
 
 module.exports = class S3Ghost extends StorageBase {
-	private readonly s3Instance: S3
+	private readonly s3Instance: S3Client
 	private readonly options: IS3GhostConfig
 	private readonly storagePath: string
 
 	constructor(config: IS3GhostConfig) {
 		super()
-		this.storagePath = require(`${config.ghostDirectory}/core/shared/config`).getContentPath('images')
+		// https://github.com/TryGhost/Ghost/blob/592d02fd23a3a440f0be06d8f8cdce18a4ec3742/core/shared/config/helpers.js#L69
+		// images or files or media or public
+		this.storagePath = require(`${config.ghostDirectory}/core/shared/config`).getContentPath('files')
 		this.options = config
-		const awsConfig = new AWSConfig({
-			accessKeyId: config.accessKeyId,
-			secretAccessKey: config.secretAccessKey,
-			region: config.region
-		})
-		awsConfig.setPromisesDependency(Promise)
-		this.s3Instance = new S3({
+
+		this.s3Instance = new S3Client({
 			apiVersion: '2006-03-01',
-			params: {Bucket: config.bucketName},
-			accessKeyId: config.accessKeyId,
-			secretAccessKey: config.secretAccessKey,
-			region: config.region
+			endpoint: config.endpoint,
+			region: config.region,
+			credentials: {
+				accessKeyId: config.accessKeyId,
+				secretAccessKey: config.secretAccessKey,
+			}
 		})
-		this.s3Instance.config = awsConfig
 	}
 
-	getAWSKey(targetFileName: string){
-		return path.relative(this.storagePath, targetFileName)
+	// remove leading slash
+	private getAWSKey(targetFileName: string) {
+		return sanitizeS3Key(`${this.options.baseDir || ''}${targetFileName.replace(/^\//, '')}`)
 	}
 
-	async exists(fileName: string, targetDir?: string): Promise<boolean> {
-		targetDir = targetDir || super.getTargetDir(this.storagePath)
+	async exists(fileName: string, targetDir): Promise<boolean> {
+		targetDir = targetDir || this.storagePath
 		const targetFileName = path.join(targetDir, fileName)
+
 		try {
-			await this.s3Instance.headObject({
-				Key: this.getAWSKey(targetFileName),
-				Bucket: this.options.bucketName
-			}).promise()
+			await this.s3Instance
+				.send(new HeadObjectCommand({
+					Key: this.getAWSKey(targetFileName),
+					Bucket: this.options.bucketName,
+				}))
 			return true
+
 		} catch (e) {
 			return false
 		}
 	}
 
-	async save(image: StorageBase.Image, targetDir?: string): Promise<string> {
+	async save(file: StorageBase.Image, targetDir?: string): Promise<string> {
 		targetDir = targetDir || super.getTargetDir(this.storagePath)
-		const targetFileName = await super.getUniqueFileName(image, targetDir)
-		await this.s3Instance.putObject({
-			ContentType: image.type,
-			Key: this.getAWSKey(targetFileName),
-			Body: await promisify(fs.readFile.bind(fs))(image.path),
-			Bucket: this.options.bucketName,
-			CacheControl: `public, max-age=${Math.round(ms('2 weeks') / ms('1 second'))}`
-		}).promise()
-		const urlUtils = require(`${this.options.ghostDirectory}/core/shared/url-utils`)
-		return urlUtils.urlJoin(
-				'/',
-				urlUtils.getSubdir(),
-				urlUtils.STATIC_IMAGE_URL_PREFIX,
-				path.relative(this.storagePath, targetFileName)
-		).replace(new RegExp(`\\${path.sep}`, 'g'), '/')
+		const targetFileName = await super.getUniqueFileName(file, targetDir)
+
+		const s3Key = this.getAWSKey(targetFileName)
+
+		await this.s3Instance
+			.send(
+				new PutObjectCommand({
+					Key: s3Key,
+					Body: await promisify(fs.readFile.bind(fs))(file.path),
+					ContentType: file.type,
+					CacheControl: `public, max-age=${Math.round(ms('3 weeks') / ms('1 second'))}`,
+					Bucket: this.options.bucketName,
+					ACL: 'public-read',
+				})
+			)
+
+		return `${this.options.assetsBaseUrl || `https://${this.options.bucketName}.s3.${this.options.region}.amazonaws.com`}/${encodeS3Key(s3Key)}`
 	}
 
 	serve(): Handler {
 		return (req, res) => {
 			res
 					.status(301)
-					.redirect(`${this.options.assetsBaseUrl}${req.url.replace(/\/$/, '')}`)
+					.redirect(`${this.options.assetsBaseUrl || `https://${this.options.bucketName}.s3.${this.options.region}.amazonaws.com`}${this.options.baseDir || ''}${req.url.replace(/\/$/, '').replace(/\/$/, '')}`)
 		}
 	}
 
 	async delete(fileName: string, targetDir?: string): Promise<boolean> {
-		targetDir = targetDir || super.getTargetDir(this.storagePath)
+		targetDir = targetDir || this.storagePath
 		const targetFileName = path.join(targetDir, fileName)
+
+		const s3Key = this.getAWSKey(targetFileName)
+
 		try {
-			await this.s3Instance.deleteObject({
-				Key: this.getAWSKey(targetFileName),
-				Bucket: this.options.bucketName
-			}).promise()
+
+			await this.s3Instance
+				.send(new DeleteObjectCommand({
+					Key: s3Key,
+					Bucket: this.options.bucketName,
+				}))
+
 			return true
 		} catch (e) {
 			return false
@@ -100,12 +114,15 @@ module.exports = class S3Ghost extends StorageBase {
 	}
 
 	async read(options?: StorageBase.ReadOptions): Promise<Buffer> {
-		// remove trailing slashes
+		// remove trailing/leading slashes
 		const targetPath = (options && options.path || '').replace(/\/$|\\$/, '').replace(/^\//, '')
-		const response = await this.s3Instance.getObject({
-			Key: targetPath,
-			Bucket: this.options.bucketName
-		}).promise()
-		return response.Body as Buffer
+		const s3Key = this.getAWSKey(targetPath)
+
+		const response = await this.s3Instance
+			.send(new GetObjectCommand({
+				Key: s3Key,
+				Bucket: this.options.bucketName,
+			}))
+		return response.Body as any
 	}
 }

@@ -1,6 +1,9 @@
 # S3 Ghost
 Ghost AWS S3 Storage Adapter
 
+- Use AWS Javascript SDK v3.
+- Default cache control: cache in 3 weeks.
+
 # How to
 From your parent directory of the `content` directory (ghost root by default). Run following script
 ```bash
