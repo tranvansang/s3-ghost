@@ -5,7 +5,8 @@ import type {Handler} from 'express'
 import {promisify} from 'util'
 import ms from 'ms'
 import {DeleteObjectCommand, GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client} from '@aws-sdk/client-s3'
-import {encodeS3Key, sanitizeS3Key} from 's3-key'
+import {sanitizeS3Key} from 's3-key'
+import 'core-js/features/string/replace-all'
 
 interface IS3GhostConfig {
 	ghostDirectory: string
@@ -83,7 +84,13 @@ module.exports = class S3Ghost extends StorageBase {
 				})
 			)
 
-		return `${this.options.assetsBaseUrl || `https://${this.options.bucketName}.s3.${this.options.region}.amazonaws.com`}/${encodeS3Key(s3Key)}`
+		const urlUtils = require(`${this.options.ghostDirectory}/core/shared/url-utils`)
+		return urlUtils.urlJoin(
+			'/',
+			urlUtils.getSubdir(),
+			urlUtils.STATIC_IMAGE_URL_PREFIX,
+			path.relative(this.storagePath, targetFileName)
+		).replace(new RegExp(`\\${path.sep}`, 'g'), '/')
 	}
 
 	serve(): Handler {
