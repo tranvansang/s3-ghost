@@ -70,7 +70,7 @@ module.exports = class S3Ghost extends StorageBase {
 		targetDir = targetDir || super.getTargetDir(this.storagePath)
 		const targetFileName = await super.getUniqueFileName(file, targetDir)
 
-		const s3Key = this.getAWSKey(targetFileName)
+		const s3Key = this.getAWSKey(path.relative(this.storagePath, targetFileName))
 
 		await this.s3Instance
 			.send(
