@@ -1,6 +1,6 @@
 {
     "name": "s3-ghost",
-    "version": "1.4.6",
+    "version": "1.4.7",
     "description": "Ghost AWS s3 storage adapter",
     "main": "index.js",
     "repository": "https://github.com/tranvansang/s3-ghost",
