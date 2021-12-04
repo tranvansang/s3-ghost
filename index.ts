@@ -7,6 +7,7 @@ import ms from 'ms'
 import {DeleteObjectCommand, GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client} from '@aws-sdk/client-s3'
 import {sanitizeS3Key} from 's3-key'
 import 'core-js/features/string/replace-all'
+import type {Readable} from 'stream'
 
 interface IS3GhostConfig {
 	ghostDirectory: string
@@ -19,6 +20,14 @@ interface IS3GhostConfig {
 	baseDir?: string // example: foo/bar/
 	assetsBaseUrl: string // example: https://cdn.example.com without baseDir
 }
+
+const streamToBuffer = (stream: Readable) => new Promise<Buffer>((resolve, reject) => {
+	const chunks = []
+	stream.on('data', (chunk) => chunks.push(chunk))
+	stream.once('end', () => resolve(Buffer.concat(chunks)))
+	stream.once('error', reject)
+})
+
 
 module.exports = class S3Ghost extends StorageBase {
 	private readonly s3Instance: S3Client
@@ -131,6 +140,6 @@ module.exports = class S3Ghost extends StorageBase {
 				Key: s3Key,
 				Bucket: this.options.bucketName,
 			}))
-		return response.Body as any
+		return await streamToBuffer(response.Body as Readable)
 	}
 }
