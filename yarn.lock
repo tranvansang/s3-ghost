@@ -899,17 +899,17 @@ ms@^2.1.3:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.3.tgz#574c8138ce1d2b5861f0b44579dbadd60c6615b2"
   integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
 
-rrjx@^0.0.2:
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/rrjx/-/rrjx-0.0.2.tgz#764b071b6cfb655060bb1710c8c9f225a36339e3"
-  integrity sha512-sgSUZ8bnlyrbZzI3qwz38QnXPaB5dCVIvgt6RuD0r4kdqSR0u5lyocF9fxJ3piobcScaVQEzhN9YhcFurPs+aA==
+rrjx@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/rrjx/-/rrjx-0.1.1.tgz#e02f7798f4466bfcc7014425360daf7c9bdb9e35"
+  integrity sha512-cE3woOK5zeVh+GmauxI7Y2vcbhN1h/ACnnZN/K61uaEFFTEobMNwq864FeJlmkwm5L1SfQit3WonSDZ5CuZEDA==
 
-s3-key@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/s3-key/-/s3-key-0.1.0.tgz#4c37e9359cb2f9f4478376880f6a8fe914de032a"
-  integrity sha512-kXvZJFFEWE/MtwyU7hzgd1/05FmZ0V8ibefflmbysSwilTQePHWsE+O5+D/wpyvgajS8e5wKsyYqD56M7gOajg==
+s3-key@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/s3-key/-/s3-key-0.1.1.tgz#e80bae9ed50a8fdec1e4cc8a1639f33346f76a4e"
+  integrity sha512-Kfj0BcGshOIWA3yzY8RlGJ30y5RUzS/l1KO5H0I1Hu0ZxPpIfMMMUj5IVBgNosI0SY391Sg0CBSLDZP5TWT1xQ==
   dependencies:
-    rrjx "^0.0.2"
+    rrjx "^0.1.1"
 
 tslib@^1.11.1:
   version "1.14.1"
