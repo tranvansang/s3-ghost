@@ -14,8 +14,8 @@
         "clean": "rm index.js"
     },
     "dependencies": {
-        "@aws-sdk/client-s3": "^3.44.0",
-        "core-js": "^3.19.2",
+        "@aws-sdk/client-s3": "^3.48.0",
+        "core-js": "^3.20.3",
         "ghost-storage-base": "^1.0.0",
         "ms": "^2.1.3",
         "s3-key": "^0.1.1"
