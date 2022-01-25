@@ -53,19 +53,11 @@ module.exports = class S3Ghost extends StorageBase {
 		})
 	}
 
-	// remove leading slash
-	private getAWSKey(targetFileName: string) {
-		return sanitizeS3Key(`${this.options.baseDir || ''}${targetFileName.replace(/^\//, '')}`)
-	}
-
 	async exists(fileName: string, targetDir): Promise<boolean> {
-		targetDir = targetDir || this.storagePath
-		const targetFileName = path.join(targetDir, fileName)
-
 		try {
 			await this.s3Instance
 				.send(new HeadObjectCommand({
-					Key: this.getAWSKey(targetFileName),
+					Key: this.getAWSKey(path.join(targetDir, fileName)),
 					Bucket: this.options.bucketName,
 				}))
 			return true
@@ -76,10 +68,9 @@ module.exports = class S3Ghost extends StorageBase {
 	}
 
 	async save(file: StorageBase.Image, targetDir?: string): Promise<string> {
-		targetDir = targetDir || super.getTargetDir(this.storagePath)
-		const targetFileName = await super.getUniqueFileName(file, targetDir)
-
-		const s3Key = this.getAWSKey(path.relative(this.storagePath, targetFileName))
+		// typing package is incorrect, the method indeed returns a promise
+		const absPath = await super.getUniqueFileName(file, targetDir || super.getTargetDir(this.storagePath))
+		const s3Key = this.getAWSKey(absPath)
 
 		await this.s3Instance
 			.send(
@@ -92,14 +83,7 @@ module.exports = class S3Ghost extends StorageBase {
 					ACL: 'public-read',
 				})
 			)
-
-		const urlUtils = require(`${this.options.ghostDirectory}/core/shared/url-utils`)
-		return urlUtils.urlJoin(
-			'/',
-			urlUtils.getSubdir(),
-			urlUtils.STATIC_IMAGE_URL_PREFIX,
-			path.relative(this.storagePath, targetFileName)
-		).replace(new RegExp(`\\${path.sep}`, 'g'), '/')
+		return this.pathToUrl(absPath)
 	}
 
 	serve(): Handler {
@@ -111,16 +95,10 @@ module.exports = class S3Ghost extends StorageBase {
 	}
 
 	async delete(fileName: string, targetDir?: string): Promise<boolean> {
-		targetDir = targetDir || this.storagePath
-		const targetFileName = path.join(targetDir, fileName)
-
-		const s3Key = this.getAWSKey(targetFileName)
-
 		try {
-
 			await this.s3Instance
 				.send(new DeleteObjectCommand({
-					Key: s3Key,
+					Key: this.getAWSKey(path.join(targetDir || this.storagePath, fileName)),
 					Bucket: this.options.bucketName,
 				}))
 
@@ -133,7 +111,7 @@ module.exports = class S3Ghost extends StorageBase {
 	async read(options?: StorageBase.ReadOptions): Promise<Buffer> {
 		// remove trailing/leading slashes
 		const targetPath = (options && options.path || '').replace(/\/$|\\$/, '').replace(/^\//, '')
-		const s3Key = this.getAWSKey(targetPath)
+		const s3Key = this.getAWSKey(path.join(this.storagePath, targetPath))
 
 		const response = await this.s3Instance
 			.send(new GetObjectCommand({
@@ -141,5 +119,21 @@ module.exports = class S3Ghost extends StorageBase {
 				Bucket: this.options.bucketName,
 			}))
 		return await streamToBuffer(response.Body as Readable)
+	}
+
+	private getAWSKey(absPath: string) {
+		const relativePath = path.relative(this.storagePath, absPath)
+		if (relativePath.startsWith('..')) throw new Error('do not support upload outside of storagePath')
+		return sanitizeS3Key(`${this.options.baseDir || ''}${relativePath}`)
+	}
+
+	private pathToUrl(absPath: string) {
+		const urlUtils = require(`${this.options.ghostDirectory}/core/shared/url-utils`)
+		return urlUtils.urlJoin(
+			'/',
+			urlUtils.getSubdir(),
+			urlUtils.STATIC_IMAGE_URL_PREFIX,
+			path.relative(this.storagePath, absPath)
+		).replace(new RegExp(`\\${path.sep}`, 'g'), '/')
 	}
 }
