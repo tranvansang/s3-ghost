@@ -1,13 +1,13 @@
-import path from 'path'
-import fs from 'fs'
+import path from 'node:path'
+import fs from 'node:fs'
 import StorageBase from 'ghost-storage-base'
 import type {Handler} from 'express'
-import {promisify} from 'util'
+import {promisify} from 'node:util'
 import ms from 'ms'
 import {DeleteObjectCommand, GetObjectCommand, HeadObjectCommand, PutObjectCommand, S3Client} from '@aws-sdk/client-s3'
 import {sanitizeS3Key} from 's3-key'
 import 'core-js/features/string/replace-all'
-import type {Readable} from 'stream'
+import type {Readable} from 'node:stream'
 
 interface IS3GhostConfig {
 	ghostDirectory: string

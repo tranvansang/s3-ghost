@@ -8,12 +8,12 @@
     "license": "MIT",
     "files": [
         "index.js",
-        "index.js.map",
         "index.d.ts"
     ],
     "scripts": {
-        "build": "yarn tsc --target ES2015 --module commonjs --esModuleInterop true --forceConsistentCasingInFileNames true --skipLibcheck true --sourceMap --declaration index.ts",
-        "clean": "rm -rf index.js index.js.map index.d.ts"
+        "build": "yarn tsc --target esnext --module commonjs --esModuleInterop true --forceConsistentCasingInFileNames true --skipLibcheck true --inlineSourceMap --declaration index.ts",
+        "clean": "rm -rf index.js index.d.ts",
+        "prepublishOnly": "yarn clean && yarn build"
     },
     "dependencies": {
         "@aws-sdk/client-s3": "^3.48.0",
