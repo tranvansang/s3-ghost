@@ -4,7 +4,7 @@
     "description": "Ghost AWS s3 storage adapter",
     "main": "index.js",
     "repository": "https://github.com/tranvansang/s3-ghost",
-    "author": "Tran Sang<me@transa.ng>",
+    "author": "Sang Tran <t@sang.jp>",
     "license": "MIT",
     "files": [
         "index.js",
